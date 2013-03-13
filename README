@@ -1,1 +1,2 @@
-This file was created by JetBrains WebStorm 6.0 for binding GitHub repository
+Allows multiple users to draw simultaneously on a canvas via a node.js server.
+Ideally, this code will eventually be structured in such a way that it will represent a general, reusable framework for any web-based application that requires synchronized client activity, client grouping, and user-created data storage.
