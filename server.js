@@ -5,7 +5,10 @@ var express = require('express'),
     http    = require('http'),
     server  = http.createServer(app),
     io      = require('socket.io').listen(server, {'log level':1}),
-    Pixel_Data = require('./Pixel_Data'),
+    redis   = require('redis');
+
+    /* Custom modules */
+var Pixel_Data = require('./Pixel_Data'),
     Client  = require('./Client');
 
 
@@ -15,13 +18,13 @@ server.listen(3000,function(){
 
 /* Sets up HTTP server
  * All requests are routed to /public folder
- * Empty request '/' routed to /public/index.html
+ * Empty request '/' routed to /public/app.html
  */
 app.use(logger);
 app.use(express.bodyParser());
 app.use(express.static(__dirname + '/public'));
 app.use('/public',function(req,res){
-    res.sendfile("index.html");
+    res.sendfile("login.html");
 });
 
 /*
@@ -36,7 +39,9 @@ ClientColors = [
     [0,255,0],
     [0,0,255],
     [0,200,200],
-    [200,100,100]
+    [200,100,100],
+    [200,200,100],
+    [150,10,30]
 ]
 
 /* Client-tracking data structure
@@ -93,7 +98,7 @@ io.sockets.on('connection',function(socket){
     socket.on('endCanvasStream',function(){
         CanvasData.processQueue();
         socket.broadcast.emit('endRemoteStream',{sender:socket.client_id});
-    })
+    });
 
     /* Upon disconnection, this client is deleted from the client-tracking data structure
      * All other clients are sent an updated copy of the current number of connections
@@ -102,7 +107,7 @@ io.sockets.on('connection',function(socket){
         console.log("\n"+this.client_id+" has left.");
         delete clients[this.client_id];
         io.sockets.emit("updateClientList",{numClients:Object.keys(clients).length});
-    })
+    });
 });
 
 /* Returns a list of all clients and their IP's */
@@ -121,18 +126,11 @@ var clearCanvas = function(){
     return "success";
 }
 
-/* Emits a 'pause' request along with a string message to a particular client
- * If the string '*' is supplied as the client_id, the request is sent to all clients
+/* Emits a message using socket.io to a particular client stored in the client database
  */
-var pause = function(client_id,message){
-    if(client_id=='*'){
-        Object.keys(clients).map(function(client){
-            clients[client].socket.emit('pause',message);
-        });
-        return 'paused all with message '+message;
-    }
-    clients[client_id].socket.emit('pause',message);
-    return  clients[client_id] + " paused with message: "+message;
+var emitToClient = function(client_id,message_name,message){
+    clients[client_id].socket.emit(message_name,message);
+    return  "Sent client "+clients[client_id] + ", message type: "+message_name+", message: "+message;
 }
 
 /* Prints server requests to the console
@@ -161,5 +159,5 @@ local_repl.context.CanvasData = CanvasData;
 local_repl.context.clients = clients;
 local_repl.context.ips = getClientIps;
 local_repl.context.clear = clearCanvas
-local_repl.context.pause = pause;
+local_repl.context.emitToClient = emitToClient;
 /* End REPL code */

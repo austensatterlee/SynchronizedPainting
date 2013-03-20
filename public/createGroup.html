@@ -1,0 +1,69 @@
+<head>
+    <script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.10.2.custom.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/sunny/jquery-ui-1.10.2.custom.css" />
+    <link rel="stylesheet" type="text/css" href="css/extBlocks.css" />
+    <script type="text/javascript">
+        var request;
+        $(document).ready(function(){
+            $("#submit").click(function(){
+                if(request){
+                    request.abort();
+                }
+
+                $form = $("#createGroup");
+                $inputs = $("#createGroup > input");
+                var serialized = $form.serialize();
+                console.log($form);
+                $inputs.prop("disabled", true);
+                request = $.ajax({
+                    type: "POST",
+                    url: "/create",
+                    data: serialized
+                });
+
+                request.done(function(response,textStatus,jqXHR){
+                    setConsoleTitle("Group Link!")
+                    var respStr = response;
+                    logToConsole(respStr);
+                    request.abort();
+                });
+
+                request.fail(function (jqXHR, textStatus, errorThrown){
+                    logToConsole("The following error occured: "+
+                            textStatus+","+errorThrown);
+                });
+
+                request.always(function () {
+                    $inputs.prop("disabled", false);
+                });
+
+                event.preventDefault();
+            });
+        });
+        function closeCreateGroup(){
+            $("#createGroup_block").trigger("close");
+        }
+    </script>
+</head>
+<body>
+<div class="box">
+    <div class="close_button" onclick="closeCreateGroup()"></div>
+    <h1>Create new group</h1>
+    <form id="createGroup">
+        <label>
+            <span>Name:</span>
+            <input type="text" name="name" id="name" class="input_text" />
+        </label>
+        <label>
+            <span>Slots:</span>
+            <select id="slots" name="slots" class="input_dropdown">
+                <option value = "1">one</option>
+                <option value = "2">two</option>
+                <option value = "3">three</option>
+                <option value = "4">four</option>
+            </select>
+        </label>
+        <input type="button" value="Go" class="button" id="submit">
+    </form>
+</div>

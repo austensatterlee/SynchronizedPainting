@@ -1,10 +1,11 @@
 {
-    "name": "Synchronized Painting",
+    "name": "SynchronizedPainting",
     "description": "Simple multi-user drawing application using Express and Socket.io libraries. Demonstrates synchronized client activity and server communications",
     "version": "0.0.1",
     "dependencies": {
         "express": "3.1",
         "socket.io":  "0.9.13",
+        "redis": "0.8.2",
         "colors": "*"
     }
 }

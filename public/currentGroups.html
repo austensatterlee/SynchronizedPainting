@@ -1,0 +1,35 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="css/extBlocks.css" /><head>
+    <script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.10.2.custom.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/sunny/jquery-ui-1.10.2.custom.css" />
+    <link rel="stylesheet" type="text/css" href="css/extBlocks.css" />
+    <script type="text/javascript">
+        function closeCurrentGroups(){
+            $("#currentGroupBlock").trigger("close");
+        }
+        $("#currentGroups").on("groups",function(event,data){
+            event.preventDefault();
+            $("#currentGroupsForm").empty();
+            var groups = data.groups;
+            for(var groupHash in groups){
+                var groupName = groups[groupHash];
+                $("#currentGroupsForm").append("<input type='button' class='button' name='groupSelect' data=\""+groupHash+"\" value=\""+groupName+"\">");
+                if(groupHash==data.active){
+                    $("#currentGroupsForm input[type=button][value="+groupName+"]").addClass("active");
+                }
+            }
+
+            $("input[type=button]").on("click",function(event){
+                var groupHash = $(this).attr("data");
+                socket.emit("selectClientGroup",groupHash);
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="currentGroups" class="box">
+    <h1>Groups</h1>
+    <div id="currentGroupsForm"></div>
+</div>
+</body>
